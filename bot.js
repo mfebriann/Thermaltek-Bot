@@ -66,19 +66,19 @@ const tableInvestors = (data) => {
 	const { totalDana: dana, dataInvestor } = data;
 	const totalDana = Number(dana).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-	let table = `\`\`\`\n`; // Membuka blok kode untuk monospace di Telegram
-	table += `No  Nama       Ticker      Total Harga      Total Coin      Kepemilikan\n`;
-	table += `-----------------------------------------------------------------------\n`;
+	let table = `\`\`\`Investors\n`; // Membuka blok kode untuk monospace di Telegram
+	table += `No  Nama       Ticker      Total Harga        Total Coin      Kepemilikan\n`;
+	table += `--------------------------------------------------------------------------\n`;
 	dataInvestor.forEach((investor, index) => {
-		const { investors, ticker, totalPrice: price, totalCoin: coin, ownership_percentage: percentage } = investor;
-		const name = investors.charAt(0).toUpperCase() + investors.slice(1);
+		const { username, ticker, totalPrice: price, totalCoin: coin, ownership_percentage: percentage } = investor;
+		const name = username.charAt(0).toUpperCase() + username.slice(1);
 		const totalPrice = Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		const totalCoin = Number(coin).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-		const ownership_percentage = (percentage != 100 ? parseFloat(percentage).toFixed(2) : 100) + '%';
+		const ownership_percentage = (totalCoin != 0 ? (percentage != 100 ? parseFloat(percentage).toFixed(2) : 100) : 0) + '%';
 
-		table += `${String(index + 1).padEnd(3)} ${name.padEnd(10)} ${ticker.toUpperCase().padEnd(11)} Rp. ${String(totalPrice).padEnd(12)} ${String(totalCoin).padEnd(15)} ${String(ownership_percentage).padEnd(12)}\n`;
+		table += `${String(index + 1).padEnd(3)} ${name.padEnd(10)} ${ticker.toUpperCase().padEnd(11)} Rp. ${String(totalPrice).padEnd(14)} ${String(totalCoin).padEnd(15)} ${String(ownership_percentage).padEnd(12)}\n`;
 	});
-	table += `\nTotal dana: Rp. ${totalDana}`;
+	table += `\nDana saat ini: Rp. ${totalDana}`;
 	table += `\`\`\``; // Menutup blok kode untuk monospace di Telegram
 	return table;
 };
@@ -103,15 +103,15 @@ bot.onText(/\/investors/, async (msg) => {
 });
 
 const tableCoins = (data) => {
-	let table = `\`\`\`\n`; // Membuka blok kode untuk monospace di Telegram
-	table += `No  Nama Koin         Ticker      Platform   Total Koin\n`;
-	table += `---------------------------------------------------------------\n`;
+	let table = `\`\`\`Coins\n`; // Membuka blok kode untuk monospace di Telegram
+	table += `No  Nama Koin        Ticker      Total Koin\n`;
+	table += `----------------------------------------------\n`;
 	data.forEach((coin, index) => {
-		const { coin: coinName, ticker, platform, total_coin } = coin;
+		const { coin: coinName, ticker, total_coin } = coin;
 		const totalCoin = Number(total_coin).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		const name = coinName.charAt(0).toUpperCase() + coinName.slice(1);
 
-		table += `${String(index + 1).padEnd(3)} ${name.padEnd(17)} ${ticker.padEnd(11)} ${platform.toUpperCase().padEnd(10)} ${totalCoin.padEnd(5)}\n`;
+		table += `${String(index + 1).padEnd(3)} ${name.padEnd(16)} ${ticker.padEnd(11)} ${totalCoin.padEnd(5)}\n`;
 	});
 	table += `\`\`\``; // Menutup blok kode untuk monospace di Telegram
 	return table;
@@ -136,23 +136,30 @@ bot.onText(/\/coins/, async (msg) => {
 });
 
 const tableTransactions = (data) => {
-	let table = `\`\`\`\n`; // Membuka blok kode untuk monospace di Telegram
-	table += `No  Nama Transaksi       Nama Koin   Ticker     Jumlah Koin          Harga Koin       Total Harga      Investor   Status\n`;
+	const { transactions, totalDana: tempTotalDana } = data;
+
+	let table = `\`\`\`Transactions\n`; // Membuka blok kode untuk monospace di Telegram
+	table += `No  Nama Transaksi       Nama Koin   Ticker     Jumlah Koin   Harga Koin           Total Harga          Investor   Status\n`;
 	table += `--------------------------------------------------------------------------------------------------------------------------------\n`;
-	data.forEach((transaction, index) => {
+	transactions.forEach((transaction, index) => {
 		const { message: tempMessage, coin, ticker, total_coin, price_coin, status, total_price, investors } = transaction;
-		const message = tempMessage.slice(0, 12) + '...';
+		const message = tempMessage.length > 16 ? tempMessage.slice(0, 12) + '...' : tempMessage;
 		const totalCoin = Number(total_coin.replaceAll(',', '')).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-		const coinName = coin.charAt(0).toUpperCase() + coin.slice(1, 7) + '...';
+		const coinName = coin.length > 7 ? coin.charAt(0).toUpperCase() + coin.slice(1, 7) + '...' : coin.charAt(0).toUpperCase() + coin.slice(1);
 		const priceCoin = Number(price_coin.replaceAll(',', '')).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		const totalPrice = Number(total_price.replaceAll(',', '')).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 		const name = investors.charAt(0).toUpperCase() + investors.slice(1);
 		const statusName = status.charAt(0).toUpperCase() + status.slice(1);
 
-		table += `${String(index + 1).padEnd(3)} ${message.padEnd(20)} ${coinName.padEnd(11)} ${ticker.toUpperCase().padEnd(10)} ${totalCoin.padEnd(20)} Rp. ${priceCoin.padEnd(12)} Rp. ${totalPrice.padEnd(12)} ${name.padEnd(
+		table += `${String(index + 1).padEnd(3)} ${message.padEnd(20)} ${coinName.padEnd(11)} ${ticker.toUpperCase().padEnd(10)} ${totalCoin.padEnd(13)} Rp. ${priceCoin.padEnd(16)} Rp. ${totalPrice.padEnd(16)} ${name.padEnd(
 			10
 		)} ${statusName}\n`;
 	});
+
+	const totalDana = Number(tempTotalDana.replaceAll(',', '')).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+	table += `\nTotal seluruh dana: Rp. ${totalDana}`;
+	table += `\nCatatan: Ini mengambil 10 data transaksi terbaru`;
 	table += `\`\`\``; // Menutup blok kode untuk monospace di Telegram
 	return table;
 };
@@ -169,9 +176,51 @@ bot.onText(/\/transactions/, async (msg) => {
 	if (data) {
 		const message = tableTransactions(data);
 		bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
-		bot.sendMessage(chatId, 'Catatan: Ini mengambil 10 data transaksi terbaru');
 	} else {
 		bot.sendMessage(chatId, 'Gagal mengambil data transaksi. Silakan coba lagi nanti.');
+	}
+	bot.deleteMessage(chatId, loadingMessage.message_id);
+});
+
+const tableCheckPrice = (data) => {
+	const { tickers, coinData } = data;
+	const coinDatas = [];
+
+	let table = `\`\`\`Coins_Price\n`; // Membuka blok kode untuk monospace di Telegram
+	table += `No  Nama Koin      Rank   Harga Terbaru\n`;
+	table += `-------------------------------------------------\n`;
+	tickers.forEach((ticker, _) => {
+		coinDatas.push(coinData[ticker]);
+	});
+
+	const resultCoinsData = coinDatas.sort((a, b) => a.cmc_rank - b.cmc_rank);
+
+	resultCoinsData.forEach((resultCoinData, index) => {
+		const { name: coinName, cmc_rank, price_idr } = resultCoinData;
+		const name = coinName.charAt(0).toUpperCase() + coinName.slice(1);
+		const totalPrice = price_idr.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+		table += `${String(index + 1).padEnd(3)} ${name.padEnd(14)} ${String(cmc_rank).padEnd(6)} Rp. ${totalPrice.padEnd(16)}\n`;
+	});
+
+	table += `\`\`\``; // Menutup blok kode untuk monospace di Telegram
+	return table;
+};
+
+// Ketika bot menerima command '/cprice'
+bot.onText(/\/cprice/, async (msg) => {
+	const chatId = msg.chat.id;
+	if (!isAllowedGroup(chatId)) {
+		return;
+	}
+	const loadingMessage = await bot.sendMessage(chatId, 'Mengambil harga sekarang koin, mohon tunggu...');
+	const data = await getDataFromApi('checkPrice');
+
+	if (data) {
+		const message = tableCheckPrice(data);
+		bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+	} else {
+		bot.sendMessage(chatId, 'Gagal mengambil harga sekarang koin. Silakan coba lagi nanti.');
 	}
 	bot.deleteMessage(chatId, loadingMessage.message_id);
 });
