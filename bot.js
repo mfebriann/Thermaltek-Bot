@@ -37,9 +37,6 @@ const isAllowedGroup = (chatId) => {
 // Ketika bot menerima command '/start'
 bot.onText(/\/start/, (msg) => {
 	const chatId = msg.chat.id;
-	if (!isAllowedGroup(chatId)) {
-		return;
-	}
 	const message = 'Selamat datang di bot kami! Ketik /help untuk melihat daftar perintah.';
 	bot.sendMessage(chatId, message, {
 		reply_to_message_id: msg.message_id,
@@ -49,9 +46,6 @@ bot.onText(/\/start/, (msg) => {
 // Ketika bot menerima command '/help'
 bot.onText(/\/help/, (msg) => {
 	const chatId = msg.chat.id;
-	if (!isAllowedGroup(chatId)) {
-		return;
-	}
 	const message = 'Daftar perintah:\n/start - Mulai bot \n/help - Bantuan \n/transactions - Lihat 10 data transaksi terbaru \n/investors - Lihat data investor \n/coins - Lihat koin yang dimiliki';
 	bot.sendMessage(chatId, message, {
 		reply_to_message_id: msg.message_id,
@@ -239,6 +233,8 @@ const createTableImage = async (data, type) => {
 bot.onText(/\/investors/, async (msg) => {
 	const chatId = msg.chat.id;
 	if (!isAllowedGroup(chatId)) {
+		const message = 'Maaf perintah ini privasi hanya untuk investor thermaltek.';
+		bot.sendMessage(chatId, message);
 		return;
 	}
 
@@ -272,6 +268,8 @@ bot.onText(/\/investors/, async (msg) => {
 bot.onText(/\/coins/, async (msg) => {
 	const chatId = msg.chat.id;
 	if (!isAllowedGroup(chatId)) {
+		const message = 'Maaf perintah ini privasi hanya untuk investor thermaltek.';
+		bot.sendMessage(chatId, message);
 		return;
 	}
 
@@ -304,6 +302,8 @@ bot.onText(/\/coins/, async (msg) => {
 bot.onText(/\/transactions/, async (msg) => {
 	const chatId = msg.chat.id;
 	if (!isAllowedGroup(chatId)) {
+		const message = 'Maaf perintah ini privasi hanya untuk investor thermaltek.';
+		bot.sendMessage(chatId, message);
 		return;
 	}
 
@@ -336,8 +336,11 @@ bot.onText(/\/transactions/, async (msg) => {
 bot.onText(/\/cprice/, async (msg) => {
 	const chatId = msg.chat.id;
 	if (!isAllowedGroup(chatId)) {
+		const message = 'Maaf perintah ini privasi hanya untuk investor thermaltek.';
+		bot.sendMessage(chatId, message);
 		return;
 	}
+
 	const type = 'checkPrice';
 	const loadingMessage = await bot.sendMessage(chatId, 'Mengambil data harga koin terbaru, mohon tunggu...', {
 		reply_to_message_id: msg.message_id,
